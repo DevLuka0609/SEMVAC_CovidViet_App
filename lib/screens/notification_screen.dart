@@ -17,11 +17,11 @@ class NotificationScreen extends StatefulWidget {
 
 class _NotificationScreenState extends State<NotificationScreen> {
   List<Map> notificationList = [];
+  String currentIndexId;
 
   @override
   void initState() {
     getNotifications();
-
     super.initState();
   }
 
@@ -40,6 +40,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   void removeNotificationbyIndex(index) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
+      currentIndexId = notificationList[index]['article_id'];
       notificationList.removeAt(index);
       prefs.setString("nfList", json.encode(notificationList));
     });
@@ -120,12 +121,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => ArticleScreenById(
-                            id: notificationList[index]['article_id'],
+                            id: currentIndexId,
                           ),
                         ),
                       );
                       badgeData.initalizeCount();
-                      this.removeNotificationbyIndex(index);
+                      removeNotificationbyIndex(index);
                     },
                     child: NotificationWidget(
                       item: notificationList[index],

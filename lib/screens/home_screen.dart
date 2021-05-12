@@ -18,7 +18,6 @@ import './article_screen_by_id.dart';
 
 Future<void> onBackgroundMessageReceived(RemoteMessage message) async {
   if (message.notification != null) {
-    var sentTime = message.sentTime;
     var data = message.data;
     List<Map> nfList = [];
     int prevBadgeCounts = 0;
@@ -90,7 +89,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void getMessage(context) async {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       if (message.notification != null) {
-        var sentTime = message.sentTime;
         var data = message.data;
         List<Map> nfList = [];
         int prevBadgeCounts = 0;
@@ -116,18 +114,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         prefs.setInt('badgeCounts', prevBadgeCounts);
         Provider.of<BadgeCounter>(context, listen: false)
             .setCounts(prevBadgeCounts);
-
-        // Provider.of<PushNotification>(context, listen: false)
-        //     .setNotificationData(
-        //   data["article_id"],
-        //   data["text"],
-        //   data["type"],
-        //   sentTime,
-        // );
-        // Provider.of<BadgeCounter>(context, listen: false).increment();
-        // print(Provider.of<PushNotification>(context, listen: false).getText);
-        // print(
-        //     Provider.of<PushNotification>(context, listen: false).getSentTime);
       }
     });
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
