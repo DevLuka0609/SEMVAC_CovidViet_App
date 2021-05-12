@@ -4,7 +4,9 @@ import 'package:http/http.dart' as http;
 import '../model/article_model.dart';
 
 class Service {
-  String domain = 'http://www.semvac.info/adminpanel';
+  // String domain = 'http://www.semvac.info/adminpanel';
+  String domain = 'http://10.10.10.108:8080/manager';
+
   Future<List<Article>> getArticleList() async {
     try {
       List<Article> result = [];
@@ -66,6 +68,29 @@ class Service {
           result.add(Article.fromJSON(data["data"][i]));
           print(result[i].articleTitle);
         }
+      }
+      return result;
+    } catch (err) {
+      rethrow;
+    }
+  }
+
+  Future<Article> getArticleById(String id) async {
+    try {
+      Article result;
+      var response = await http.post(
+        "$domain/index.php/mobile?type=get_article&id=$id",
+        headers: {
+          "accept": "application/json",
+          "cache-control": "no-cache",
+          "content-type": "application/json"
+        },
+      );
+      final body = convert.jsonDecode(response.body);
+      final data = body["data"];
+      print(body["data"]);
+      if (response.statusCode == 200) {
+        result = Article.fromJSON(data);
       }
       return result;
     } catch (err) {

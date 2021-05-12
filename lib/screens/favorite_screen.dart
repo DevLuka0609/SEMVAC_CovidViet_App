@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../provider/badge_provider.dart';
 import '../screens/article_screen.dart';
 import '../widget/article_item_widget.dart';
 import '../service/api.dart';
@@ -21,11 +24,9 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
   final LocalStorage storage = new LocalStorage('favorite_articles');
   Future<List<Article>> _getFavoriteArticles;
   String favorString = '';
-
   @override
   void initState() {
     initStorage();
-
     super.initState();
   }
 
@@ -107,6 +108,9 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
   @override
   Widget build(BuildContext context) {
     var mq = MediaQuery.of(context).size;
+    // final badgeData = Provider.of<BadgeCounter>(context);
+    // final badgeCounts = badgeData.count;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: appBackground,

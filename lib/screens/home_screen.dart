@@ -1,31 +1,167 @@
-import 'package:flutter/material.dart';
-import 'package:semvac_covid_viet/widget/article_item_widget.dart';
+import 'dart:convert' show json;
 
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../provider/push_notification.dart';
+import '../provider/badge_provider.dart';
+import '../widget/article_item_widget.dart';
 import '../config/color.dart';
 import '../model/article_model.dart';
 import '../service/api.dart';
 import '../widget/loading.dart';
 import '../widget/appbar.dart';
 import 'article_screen.dart';
+import './article_screen_by_id.dart';
+
+Future<void> onBackgroundMessageReceived(RemoteMessage message) async {
+  if (message.notification != null) {
+    var sentTime = message.sentTime;
+    var data = message.data;
+    List<Map> nfList = [];
+    int prevBadgeCounts = 0;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
+    // prefs.clear();
+    String prevListStr = prefs.getString('nfList');
+    prevBadgeCounts = prefs.getInt('badgeCounts');
+    if (prevBadgeCounts == null)
+      prevBadgeCounts = 1;
+    else
+      prevBadgeCounts++;
+
+    if (prevListStr != null) {
+      var prevList = json.decode(prevListStr);
+      nfList = List<Map>.from(prevList);
+    }
+    nfList.add(data);
+    print(json.encode(nfList));
+    await prefs.setInt('badgeCounts', prevBadgeCounts);
+    await prefs.setString('nfList', json.encode(nfList));
+  }
+}
 
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Service _service = new Service();
   Future<List<Article>> _getArticles;
+  bool _isInForeground = true;
 
   @override
   void initState() {
+    getMessage(context);
     _getArticles = getArticles(context);
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    super.didChangeAppLifecycleState(state);
+    _isInForeground = state == AppLifecycleState.resumed;
+    if (_isInForeground) {
+      int prevBadgeCounts = 0;
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.reload();
+      prevBadgeCounts = prefs.getInt('badgeCounts');
+      if (prevBadgeCounts != null)
+        Provider.of<BadgeCounter>(context, listen: false)
+            .setCounts(prevBadgeCounts);
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   Future<List<Article>> getArticles(context) async {
     var result = await _service.getArticleList();
     return result;
+  }
+
+  void getMessage(context) async {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      if (message.notification != null) {
+        var sentTime = message.sentTime;
+        var data = message.data;
+        List<Map> nfList = [];
+        int prevBadgeCounts = 0;
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        // prefs.clear();
+
+        String prevListStr = prefs.getString('nfList');
+        prevBadgeCounts = prefs.getInt('badgeCounts');
+        await prefs.reload();
+        if (prevBadgeCounts == null)
+          prevBadgeCounts = 1;
+        else
+          prevBadgeCounts++;
+
+        if (prevListStr != null) {
+          var prevList = json.decode(prevListStr);
+          nfList = List<Map>.from(prevList);
+        }
+
+        nfList.add(data);
+        print(json.encode(nfList));
+        prefs.setString('nfList', json.encode(nfList));
+        prefs.setInt('badgeCounts', prevBadgeCounts);
+        Provider.of<BadgeCounter>(context, listen: false)
+            .setCounts(prevBadgeCounts);
+
+        // Provider.of<PushNotification>(context, listen: false)
+        //     .setNotificationData(
+        //   data["article_id"],
+        //   data["text"],
+        //   data["type"],
+        //   sentTime,
+        // );
+        // Provider.of<BadgeCounter>(context, listen: false).increment();
+        // print(Provider.of<PushNotification>(context, listen: false).getText);
+        // print(
+        //     Provider.of<PushNotification>(context, listen: false).getSentTime);
+      }
+    });
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
+      if (message.notification != null) {
+        var sentTime = message.sentTime;
+        var data = message.data;
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.reload();
+        String prevListStr = prefs.getString('nfList');
+        List<Map> nfList = [];
+        if (prevListStr != null) {
+          var prevList = json.decode(prevListStr);
+          nfList = List<Map>.from(prevList);
+        }
+        nfList.add(data);
+        prefs.setString('nfList', json.encode(nfList));
+        Provider.of<PushNotification>(context, listen: false)
+            .setNotificationData(
+          data["article_id"],
+          data["text"],
+          data["type"],
+          sentTime,
+        );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ArticleScreenById(
+              id: data["article_id"],
+            ),
+          ),
+        );
+      }
+    });
+    FirebaseMessaging.onBackgroundMessage(onBackgroundMessageReceived);
   }
 
   Widget body(List<Article> data) {
@@ -59,7 +195,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     var mq = MediaQuery.of(context).size;
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: appBackground,

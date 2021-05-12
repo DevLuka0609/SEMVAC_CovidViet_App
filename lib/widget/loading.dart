@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:semvac_covid_viet/config/color.dart';
+import '../config/color.dart';
 
 /// For Loading Widget
 Widget kLoadingWidget(context) => Center(

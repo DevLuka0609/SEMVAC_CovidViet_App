@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:localstorage/localstorage.dart';
 
-import '../screens/favorite_screen.dart';
 import '../service/api.dart';
 import '../config/config.dart';
 import '../model/article_model.dart';
@@ -126,6 +125,7 @@ class _ArticleItemWidgetState extends State<ArticleItemWidget> {
         return iconData;
       },
     );
+
     Widget articleItem = Card(
       color: articleBackground,
       borderOnForeground: true,
@@ -146,8 +146,8 @@ class _ArticleItemWidgetState extends State<ArticleItemWidget> {
             height: mq.width * 0.3,
             decoration: BoxDecoration(
               border: Border.all(
-                // color: cardBorderColor,
-              ),
+                  // color: cardBorderColor,
+                  ),
               borderRadius: BorderRadius.all(
                 Radius.circular(8),
               ),
@@ -234,6 +234,9 @@ class _ArticleItemWidgetState extends State<ArticleItemWidget> {
                           color: Colors.white70,
                           size: 25,
                         ),
+                      ),
+                      SizedBox(
+                        width: 15,
                       ),
                     ],
                   ),
