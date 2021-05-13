@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../service/api.dart';
 import '../widget/loading.dart';
@@ -106,17 +108,27 @@ class _ArticleScreenByIdState extends State<ArticleScreenById> {
                         child: Padding(
                           padding: const EdgeInsets.only(
                               top: 20, left: 20, right: 10, bottom: 10),
-                          child: Text(
-                            data.articleDescription,
+                          child: Linkify(
+                            onOpen: (link) async {
+                              if (await canLaunch(link.url)) {
+                                await launch(
+                                  link.url,
+                                  forceSafariVC: true,
+                                );
+                              } else {
+                                throw 'Could not launch $link';
+                              }
+                            },
                             textAlign: TextAlign.justify,
                             style: TextStyle(
                               fontSize: 20,
-                              color: textColor,
+                              color: Colors.white,
                               fontWeight: FontWeight.normal,
                             ),
+                            text: data.articleDescription,
                           ),
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -158,8 +170,6 @@ class _ArticleScreenByIdState extends State<ArticleScreenById> {
   @override
   Widget build(BuildContext context) {
     var mq = MediaQuery.of(context).size;
-    // final badgeData = Provider.of<BadgeCounter>(context);
-    // final badgeCounts = badgeData.count;
     return Scaffold(
       backgroundColor: appBackground,
       appBar: appBar(context),

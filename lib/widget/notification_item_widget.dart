@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../config/config.dart';
 import '../model/article_model.dart';
@@ -17,16 +18,41 @@ class NotificationWidget extends StatefulWidget {
 class _NotificationWidgetState extends State<NotificationWidget> {
   Service _service = new Service();
   Future<Article> _getArticle;
+  String timeago = '';
 
   @override
   void initState() {
     _getArticle = getArticleById(widget.item['article_id']);
-    // _getArticle = getArticleById('2');
+    setState(() {
+      timeago = readTimestamp();
+    });
+
     super.initState();
   }
 
   Future<Article> getArticleById(id) async {
     var result = await _service.getArticleById(id);
+    return result;
+  }
+
+  String readTimestamp() {
+    String result = '';
+    var now = DateTime.now().millisecondsSinceEpoch / 1000;
+    var sentTime = int.parse(widget.item['time']);
+    var ago = (now - sentTime).abs();
+    if (ago < 60 && ago > 0) {
+      result = ago.toString() + 's ago';
+    } else if (ago >= 60 && ago < 3600) {
+      var m = (ago / 60).floor();
+      var s = (ago - m * 60).floor();
+      result = m.toString() + 'm ' + s.toString() + 's ago';
+    } else if (ago >= 3600) {
+      var h = (ago / 3600).floor();
+      var m = ((ago - h * 3600) / 60).floor();
+      var s = (ago - h * 3600 - m * 60).floor();
+      result = h.toString() + 'h ' + m.toString() + 'm ago';
+    }
+    print(result);
     return result;
   }
 
@@ -42,102 +68,114 @@ class _NotificationWidgetState extends State<NotificationWidget> {
           color: cardBorderColor,
         ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
         children: [
-          Container(
-            margin: const EdgeInsets.all(8.0),
-            width: mq.width * 0.3,
-            height: mq.width * 0.3,
-            decoration: BoxDecoration(
-              border: Border.all(
-                  // color: cardBorderColor,
-                  ),
-              borderRadius: BorderRadius.all(
-                Radius.circular(8),
-              ),
-            ),
-            child: Container(
-              // margin: const EdgeInsets.all(8.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: Image.network(
-                  imageBaseUrl + data.images[0],
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          ),
-          Container(
-            width: mq.width * 0.6,
-            height: mq.width * 0.48,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  height: 60,
-                  child: RichText(
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    strutStyle: StrutStyle(fontSize: 25.0),
-                    text: TextSpan(
+          Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: Container(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 8, 8),
+                    child: Text(
+                      "Today",
                       style: TextStyle(
-                        fontSize: 19.0,
-                        color: titleColor,
-                        fontWeight: FontWeight.normal,
+                        fontSize: 20.0,
+                        color: Colors.white70,
+                        fontWeight: FontWeight.bold,
                       ),
-                      text: data.articleTitle,
                     ),
                   ),
                 ),
-                Container(
-                  height: 90,
-                  child: RichText(
-                    maxLines: 4,
-                    textAlign: TextAlign.justify,
-                    overflow: TextOverflow.ellipsis,
-                    strutStyle: StrutStyle(fontSize: 12.0),
-                    text: TextSpan(
+              ),
+              Expanded(
+                flex: 1,
+                child: Container(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                    child: Text(
+                      timeago,
                       style: TextStyle(
                         fontSize: 18.0,
                         color: Colors.white70,
+                        fontWeight: FontWeight.bold,
                       ),
-                      text: widget.item['text'],
                     ),
                   ),
                 ),
-                Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    // crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => FavouriteScreen(
-                          //       item: widget.item,
-                          //     ),
-                          //   ),
-                          // );
-                        },
-                        child: Icon(
-                          Icons.delete_rounded,
-                          color: Colors.white70,
-                          size: 25,
-                        ),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                margin: const EdgeInsets.all(8.0),
+                width: mq.width * 0.3,
+                height: mq.width * 0.3,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                      // color: cardBorderColor,
                       ),
-                      SizedBox(
-                        width: 15,
-                      ),
-                    ],
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(8),
                   ),
                 ),
-              ],
-            ),
+                child: Container(
+                  // margin: const EdgeInsets.all(8.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: Image.network(
+                      imageBaseUrl + data.images[0],
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                width: mq.width * 0.6,
+                height: mq.width * 0.40,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      height: 60,
+                      child: RichText(
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        strutStyle: StrutStyle(fontSize: 25.0),
+                        text: TextSpan(
+                          style: TextStyle(
+                            fontSize: 19.0,
+                            color: titleColor,
+                            fontWeight: FontWeight.normal,
+                          ),
+                          text: data.articleTitle,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      height: 90,
+                      child: RichText(
+                        maxLines: 4,
+                        textAlign: TextAlign.justify,
+                        overflow: TextOverflow.ellipsis,
+                        strutStyle: StrutStyle(fontSize: 12.0),
+                        text: TextSpan(
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            color: Colors.white70,
+                          ),
+                          text: widget.item['text'],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),

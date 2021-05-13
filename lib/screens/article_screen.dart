@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:swipedetector/swipedetector.dart';
 
 import '../config/color.dart';
 import '../model/article_model.dart';
@@ -9,23 +10,34 @@ import '../config/config.dart';
 import '../widget/appbar.dart';
 
 class ArticleScreen extends StatefulWidget {
-  final Article item;
-  ArticleScreen({Key key, @required this.item}) : super(key: key);
+  final List<Article> items;
+  final int itemIndex;
+  ArticleScreen({Key key, @required this.items, @required this.itemIndex})
+      : super(key: key);
   @override
   _ArticleScreenState createState() => _ArticleScreenState();
 }
 
 class _ArticleScreenState extends State<ArticleScreen> {
+  int currentIndex = 0;
+  Article currentItem;
+
   @override
   void initState() {
+    itemByIndex();
     super.initState();
+  }
+
+  void itemByIndex() {
+    setState(() {
+      currentIndex = widget.itemIndex;
+      currentItem = widget.items[currentIndex];
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     var mq = MediaQuery.of(context).size;
-    // final badgeData = Provider.of<BadgeCounter>(context);
-    // final badgeCounts = badgeData.count;
     return Scaffold(
       backgroundColor: appBackground,
       appBar: appBar(context),
@@ -63,11 +75,11 @@ class _ArticleScreenState extends State<ArticleScreen> {
                       indicatorColor: Colors.blue,
                       indicatorBackgroundColor: Colors.grey,
                       children: [
-                        for (var i = 0; i < widget.item.images.length; i++)
+                        for (var i = 0; i < currentItem.images.length; i++)
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.network(
-                              imageBaseUrl + widget.item.images[i],
+                              imageBaseUrl + currentItem.images[i],
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -81,50 +93,68 @@ class _ArticleScreenState extends State<ArticleScreen> {
                 ),
                 Expanded(
                   flex: 6,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        Container(
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                top: 20, left: 20, right: 10),
-                            child: Text(
-                              widget.item.articleTitle,
-                              style: TextStyle(
-                                fontSize: 25.0,
-                                color: titleColor,
-                                fontWeight: FontWeight.bold,
+                  child: SwipeDetector(
+                    onSwipeLeft: () {
+                      if (currentIndex < widget.items.length - 1)
+                        setState(() {
+                          currentIndex++;
+                          currentItem = widget.items[currentIndex];
+                          print("SwipeRight: $currentIndex");
+                        });
+                    },
+                    onSwipeRight: () {
+                      if (currentIndex > 0)
+                        setState(() {
+                          currentIndex--;
+                          currentItem = widget.items[currentIndex];
+                          print("SwipeLeft: $currentIndex");
+                        });
+                    },
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          Container(
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 20, left: 20, right: 10),
+                              child: Text(
+                                currentItem.articleTitle,
+                                style: TextStyle(
+                                  fontSize: 25.0,
+                                  color: titleColor,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        Container(
-                          // height: mq.height * 0.5,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                top: 20, left: 20, right: 10, bottom: 10),
-                            child: Linkify(
-                              onOpen: (link) async {
-                                if (await canLaunch(link.url)) {
-                                  await launch(
-                                    link.url,
-                                    forceSafariVC: true,
-                                  );
-                                } else {
-                                  throw 'Could not launch $link';
-                                }
-                              },
-                              textAlign: TextAlign.justify,
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: Colors.white,
-                                fontWeight: FontWeight.normal,
+                          Container(
+                            // height: mq.height * 0.5,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 20, left: 20, right: 10, bottom: 10),
+                              child: Linkify(
+                                onOpen: (link) async {
+                                  if (await canLaunch(link.url)) {
+                                    await launch(
+                                      link.url,
+                                      forceSafariVC: true,
+                                    );
+                                  } else {
+                                    throw 'Could not launch $link';
+                                  }
+                                },
+                                textAlign: TextAlign.justify,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                                text: currentItem.articleDescription,
                               ),
-                              text: widget.item.articleDescription,
                             ),
-                          ),
-                        )
-                      ],
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 ),

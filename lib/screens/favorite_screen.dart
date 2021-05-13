@@ -87,7 +87,8 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => ArticleScreen(
-                            item: data[index],
+                            items: data,
+                            itemIndex: index,
                           ),
                         ),
                       );
@@ -108,9 +109,6 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
   @override
   Widget build(BuildContext context) {
     var mq = MediaQuery.of(context).size;
-    // final badgeData = Provider.of<BadgeCounter>(context);
-    // final badgeCounts = badgeData.count;
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: appBackground,

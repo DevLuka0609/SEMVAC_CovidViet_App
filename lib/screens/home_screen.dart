@@ -163,7 +163,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   context,
                   MaterialPageRoute(
                     builder: (context) => ArticleScreen(
-                      item: data[index],
+                      items: data,
+                      itemIndex: index,
                     ),
                   ),
                 );

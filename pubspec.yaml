@@ -35,6 +35,8 @@ dependencies:
   flutter_local_notifications: ^4.0.1+2
   flutter_linkify: ^5.0.2
   url_launcher: ^6.0.3
+  intl: ^0.17.0
+  swipedetector: ^1.2.0
   flutter:
     sdk: flutter
 
