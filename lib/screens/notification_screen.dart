@@ -2,6 +2,7 @@ import 'dart:convert' show json;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:semvac_covid_viet/service/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../provider/badge_provider.dart';
@@ -18,6 +19,7 @@ class NotificationScreen extends StatefulWidget {
 class _NotificationScreenState extends State<NotificationScreen> {
   List<Map> notificationList = [];
   String currentIndexId;
+  Service _service = new Service();
 
   @override
   void initState() {
@@ -52,6 +54,15 @@ class _NotificationScreenState extends State<NotificationScreen> {
       notificationList.clear();
       prefs.setString("nfList", json.encode(notificationList));
     });
+  }
+
+  void addOpens(String id) async {
+    var result = await _service.addOpens(id);
+    if (result == true) {
+      print("Aritlce Opens Counts ++");
+    } else {
+      print("Aritlce Opns Counts Error!");
+    }
   }
 
   Widget body() {
@@ -127,6 +138,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       );
                       badgeData.initalizeCount();
                       removeNotificationbyIndex(index);
+                      addOpens(currentIndexId);
                     },
                     child: NotificationWidget(
                       item: notificationList[index],

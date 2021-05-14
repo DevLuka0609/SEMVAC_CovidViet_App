@@ -41,7 +41,8 @@ class _NotificationWidgetState extends State<NotificationWidget> {
     var sentTime = int.parse(widget.item['time']);
     var ago = (now - sentTime).abs();
     if (ago < 60 && ago > 0) {
-      result = ago.toString() + 's ago';
+      var s = ago.floor();
+      result = s.toString() + 's ago';
     } else if (ago >= 60 && ago < 3600) {
       var m = (ago / 60).floor();
       var s = (ago - m * 60).floor();

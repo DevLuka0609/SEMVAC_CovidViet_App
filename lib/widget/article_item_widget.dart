@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flushbar/flushbar.dart';
+import 'package:another_flushbar/flushbar.dart';
 import 'package:localstorage/localstorage.dart';
+import 'package:share/share.dart';
 
 import '../service/api.dart';
 import '../config/config.dart';
@@ -20,6 +21,9 @@ class _ArticleItemWidgetState extends State<ArticleItemWidget> {
   Service _service = new Service();
   List<dynamic> favorIds = [];
   final LocalStorage storage = new LocalStorage('favorite_articles');
+  String text = '';
+  String subject = 'Chia sẻ bài này từ app của SEMVAC: ...';
+  List<String> imagePaths = [];
 
   @override
   void initState() {
@@ -65,11 +69,10 @@ class _ArticleItemWidgetState extends State<ArticleItemWidget> {
       var result = await _service.addFvorites(id);
       if (result == true) {
         flush = Flushbar<bool>(
-            message: "You select the article as your favorites succesfully!",
+            message: "SEMVAC cám ơn bạn thích thông tin này!",
             margin: EdgeInsets.all(8),
-            borderRadius: 8,
-            duration: Duration(seconds: 3),
-            mainButton: FlatButton(
+            duration: Duration(seconds: 1),
+            mainButton: TextButton(
               onPressed: () {
                 flush.dismiss(true); // result = true
               },
@@ -92,12 +95,46 @@ class _ArticleItemWidgetState extends State<ArticleItemWidget> {
           setState(() {
             favorIds.removeAt(i);
           });
+          var result = await _service.removeFvorites(id);
+          print(result);
           break;
         }
       }
       storage.setItem("favorIds", favorIds);
       print(storage.getItem("favorIds"));
     }
+  }
+
+  void addShares(String id) async {
+    var result = await _service.addShares(id);
+    if (result == true) {
+      print("Aritlce Shares Counts ++");
+    } else {
+      print("Aritlce Shares Counts Error!");
+    }
+  }
+
+  _addTextImagePaths() {
+    setState(() {
+      for (var i = 0; i < widget.item.images.length; i++) {
+        var path = imageBaseUrl + widget.item.images[i];
+        // imagePaths.add(path);
+        text = widget.item.articleTitle +
+            "\n" +
+            "\n" +
+            widget.item.articleDescription +
+            "\n" +
+            path;
+        print(text);
+      }
+    });
+  }
+
+  _onShare(BuildContext context) async {
+    final RenderBox box = context.findRenderObject() as RenderBox;
+    await Share.share(text,
+        subject: subject,
+        sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
   }
 
   @override
@@ -165,7 +202,7 @@ class _ArticleItemWidgetState extends State<ArticleItemWidget> {
           ),
           Container(
             width: mq.width * 0.6,
-            height: mq.width * 0.48,
+            height: mq.height * 0.26,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,14 +250,6 @@ class _ArticleItemWidgetState extends State<ArticleItemWidget> {
                             isFavorite = !isFavorite;
                           });
                           addFavor(context, widget.item.id);
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => FavouriteScreen(
-                          //       item: widget.item,
-                          //     ),
-                          //   ),
-                          // );
                         },
                         child: favoriteIcon,
                       ),
@@ -228,7 +257,11 @@ class _ArticleItemWidgetState extends State<ArticleItemWidget> {
                         width: 15,
                       ),
                       GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                          _addTextImagePaths();
+                          _onShare(context);
+                          addShares(widget.item.id);
+                        },
                         child: Icon(
                           Icons.share_outlined,
                           color: Colors.white70,
@@ -236,7 +269,7 @@ class _ArticleItemWidgetState extends State<ArticleItemWidget> {
                         ),
                       ),
                       SizedBox(
-                        width: 15,
+                        width: 25,
                       ),
                     ],
                   ),

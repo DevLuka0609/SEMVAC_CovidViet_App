@@ -46,6 +46,15 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
     });
   }
 
+  void addOpens(String id) async {
+    var result = await _service.addOpens(id);
+    if (result == true) {
+      print("Aritlce Opens Counts ++");
+    } else {
+      print("Aritlce Opns Counts Error!");
+    }
+  }
+
   Future<List<Article>> getFavoriteArticles(context, ids) async {
     var result = await _service.getFavoriteArticleList(ids);
     return result;
@@ -92,6 +101,7 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
                           ),
                         ),
                       );
+                      addOpens(data[index].id);
                     },
                     child: ArticleItemWidget(
                       item: data[index],

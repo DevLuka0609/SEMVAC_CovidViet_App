@@ -25,11 +25,12 @@ dependencies:
   shared_preferences: 0.5.7+3
   flutter_spinkit: 4.1.2+1
   flutter_image_slideshow: ^0.0.4
-  flushbar: ^1.10.4
-  localstorage: ^3.0.6
+  social_share: ^2.0.6
+  share: ^2.0.1
+  localstorage: ^4.0.0+1
+  path_provider: ^2.0.1
   firebase_core: ^0.7.0
   firebase_messaging: ^8.0.0-dev.15
-  # overlay_support: ^1.0.5
   provider: ^5.0.0
   icon_badge: ^1.0.0
   flutter_local_notifications: ^4.0.1+2
@@ -37,6 +38,8 @@ dependencies:
   url_launcher: ^6.0.3
   intl: ^0.17.0
   swipedetector: ^1.2.0
+  another_flushbar: ^1.10.20
+  # overlay_support: ^1.0.5
   flutter:
     sdk: flutter
 

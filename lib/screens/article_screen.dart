@@ -3,8 +3,12 @@ import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:swipedetector/swipedetector.dart';
+import 'package:localstorage/localstorage.dart';
+import 'package:another_flushbar/flushbar.dart';
+import 'package:share/share.dart';
 
 import '../config/color.dart';
+import '../service/api.dart';
 import '../model/article_model.dart';
 import '../config/config.dart';
 import '../widget/appbar.dart';
@@ -21,10 +25,18 @@ class ArticleScreen extends StatefulWidget {
 class _ArticleScreenState extends State<ArticleScreen> {
   int currentIndex = 0;
   Article currentItem;
+  bool isFavorite = false;
+  List<dynamic> favorIds = [];
+  Service _service = new Service();
+  final LocalStorage storage = new LocalStorage('favorite_articles');
+  String text = '';
+  String subject = 'Chia sẻ bài này từ app của SEMVAC: ...';
+  List<String> imagePaths = [];
 
   @override
   void initState() {
     itemByIndex();
+    initStorage();
     super.initState();
   }
 
@@ -35,9 +47,138 @@ class _ArticleScreenState extends State<ArticleScreen> {
     });
   }
 
+  void initStorage() async {
+    await storage.ready;
+    // storage.clear();
+    if (storage.getItem("favorIds") == null) {
+      favorIds = [];
+      setState(() {
+        isFavorite = false;
+      });
+    } else {
+      favorIds = storage.getItem("favorIds");
+      for (var i = 0; i < favorIds.length; i++) {
+        if (widget.items[currentIndex].id == favorIds[i]) {
+          setState(() {
+            isFavorite = true;
+          });
+        }
+      }
+    }
+  }
+
+  void addFavor(context, id) async {
+    favorIds =
+        storage.getItem("favorIds") == null ? [] : storage.getItem("favorIds");
+    if (isFavorite || favorIds.isEmpty) {
+      bool isalready = false;
+      for (var i = 0; i < favorIds.length; i++) {
+        if (id == favorIds[i]) isalready = true;
+      }
+      if (isalready) return;
+      setState(() {
+        favorIds.add(id);
+      });
+      storage.setItem("favorIds", favorIds);
+      print(storage.getItem("favorIds"));
+      Flushbar flush;
+      var result = await _service.addFvorites(id);
+      if (result == true) {
+        flush = Flushbar<bool>(
+            message: "SEMVAC cám ơn bạn thích thông tin này!",
+            margin: EdgeInsets.all(8),
+            duration: Duration(seconds: 2),
+            mainButton: TextButton(
+              onPressed: () {
+                flush.dismiss(true); // result = true
+              },
+              child: Text(
+                "Close",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontFamily: 'Noto_Sans_JP',
+                  fontWeight: FontWeight.w500,
+                  color: titleColor,
+                ),
+              ),
+            ) //
+            )
+          ..show(context);
+      }
+    } else {
+      for (var i = 0; i < favorIds.length; i++) {
+        if (id == favorIds[i]) {
+          setState(() {
+            favorIds.removeAt(i);
+          });
+          var result = await _service.removeFvorites(id);
+          print(result);
+          break;
+        }
+      }
+      storage.setItem("favorIds", favorIds);
+      print(storage.getItem("favorIds"));
+    }
+  }
+
+  void addShares(String id) async {
+    var result = await _service.addShares(id);
+    if (result == true) {
+      print("Aritlce Shares Counts ++");
+    } else {
+      print("Aritlce Shares Counts Error!");
+    }
+  }
+
+  _addTextImagePaths() {
+    setState(() {
+      for (var i = 0; i < widget.items[currentIndex].images.length; i++) {
+        var path = imageBaseUrl + widget.items[currentIndex].images[i];
+        // imagePaths.add(path);
+        text = widget.items[currentIndex].articleTitle +
+            "\n" +
+            "\n" +
+            widget.items[currentIndex].articleDescription +
+            "\n" +
+            path;
+        print(text);
+      }
+    });
+  }
+
+  _onShare(BuildContext context) async {
+    final RenderBox box = context.findRenderObject() as RenderBox;
+    await Share.share(text,
+        subject: subject,
+        sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
+  }
+
   @override
   Widget build(BuildContext context) {
     var mq = MediaQuery.of(context).size;
+
+    Icon iconData = isFavorite
+        ? Icon(
+            Icons.favorite_outlined,
+            color: Colors.white70,
+            size: 25,
+          )
+        : Icon(
+            Icons.favorite_border_outlined,
+            color: Colors.white70,
+            size: 25,
+          );
+    Widget favoriteIcon = FutureBuilder(
+      future: storage.ready,
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if (snapshot.data == null) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        return iconData;
+      },
+    );
     return Scaffold(
       backgroundColor: appBackground,
       appBar: appBar(context),
@@ -80,7 +221,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
                             borderRadius: BorderRadius.circular(8),
                             child: Image.network(
                               imageBaseUrl + currentItem.images[i],
-                              fit: BoxFit.cover,
+                              fit: BoxFit.fitHeight,
                             ),
                           ),
                       ],
@@ -164,28 +305,44 @@ class _ArticleScreenState extends State<ArticleScreen> {
           Positioned(
             top: 20,
             right: mq.width * 0.07,
-            child: Row(
-              children: [
-                GestureDetector(
-                  onTap: () {},
-                  child: Icon(
-                    Icons.favorite_outline,
-                    color: Colors.white70,
-                    size: 30,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black38,
+                border: Border.all(
+                  color: appBackground,
+                ),
+                borderRadius: BorderRadius.all(
+                  Radius.circular(8),
+                ),
+              ),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        isFavorite = !isFavorite;
+                      });
+                      addFavor(context, widget.items[currentIndex].id);
+                    },
+                    child: favoriteIcon,
                   ),
-                ),
-                SizedBox(
-                  width: 15,
-                ),
-                GestureDetector(
-                  onTap: () {},
-                  child: Icon(
-                    Icons.share_outlined,
-                    color: Colors.white70,
-                    size: 30,
+                  SizedBox(
+                    width: 15,
                   ),
-                ),
-              ],
+                  GestureDetector(
+                    onTap: () {
+                      _addTextImagePaths();
+                      _onShare(context);
+                      addShares(widget.items[widget.itemIndex].id);
+                    },
+                    child: Icon(
+                      Icons.share_outlined,
+                      color: Colors.white70,
+                      size: 30,
+                    ),
+                  ),
+                ],
+              ),
             ),
           )
         ],

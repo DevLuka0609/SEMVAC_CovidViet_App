@@ -4,8 +4,8 @@ import 'package:http/http.dart' as http;
 import '../model/article_model.dart';
 
 class Service {
-  // String domain = 'http://www.semvac.info/adminpanel';
-  String domain = 'http://10.10.10.108:8080/manager';
+  String domain = 'http://www.semvac.info/adminpanel';
+  // String domain = 'http://10.10.10.108:8080/manager';
 
   Future<List<Article>> getArticleList() async {
     try {
@@ -32,6 +32,27 @@ class Service {
     try {
       var response = await http.post(
         "$domain/index.php/mobile?type=add_favor&id=$id",
+        headers: {
+          "accept": "application/json",
+          "cache-control": "no-cache",
+          "content-type": "application/json"
+        },
+      );
+      // final body = convert.jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (err) {
+      rethrow;
+    }
+  }
+
+  Future<bool> removeFvorites(String id) async {
+    try {
+      var response = await http.post(
+        "$domain/index.php/mobile?type=remove_favor&id=$id",
         headers: {
           "accept": "application/json",
           "cache-control": "no-cache",
@@ -101,7 +122,7 @@ class Service {
   Future<bool> addShares(String id) async {
     try {
       var response = await http.post(
-        "$domain/index.php/mobile?type=add_favor&id=$id",
+        "$domain/index.php/mobile?type=add_share&id=$id",
         headers: {
           "accept": "application/json",
           "cache-control": "no-cache",
@@ -122,7 +143,7 @@ class Service {
   Future<bool> addOpens(String id) async {
     try {
       var response = await http.post(
-        "$domain/index.php/mobile?type=add_favor&id=$id",
+        "$domain/index.php/mobile?type=add_open&id=$id",
         headers: {
           "accept": "application/json",
           "cache-control": "no-cache",
