@@ -185,7 +185,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
       body: Stack(
         children: [
           Card(
-            margin: EdgeInsets.all(8),
+            margin: EdgeInsets.fromLTRB(8, 8, 8, 16),
             color: articleBackground,
             borderOnForeground: true,
             shape: RoundedRectangleBorder(
