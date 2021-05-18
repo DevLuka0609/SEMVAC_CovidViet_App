@@ -2,6 +2,7 @@ import 'dart:convert' show json;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:semvac_covid_viet/service/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,6 +21,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
   List<Map> notificationList = [];
   String currentIndexId;
   Service _service = new Service();
+  RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
 
   @override
   void initState() {
@@ -33,6 +36,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
     if (prevListStr != null) {
       var prevList = json.decode(prevListStr);
+      prevList
+          .sort((a, b) => int.parse(b["time"]).compareTo(int.parse(a["time"])));
       setState(() {
         notificationList = List<Map>.from(prevList);
       });
@@ -56,8 +61,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
     });
   }
 
-  void addOpens(String id) async {
-    var result = await _service.addOpens(id);
+  void addArticleOpens(String id) async {
+    var result = await _service.addArticleOpens(id);
     if (result == true) {
       print("Aritlce Opens Counts ++");
     } else {
@@ -66,7 +71,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   Widget body() {
-    var mq = MediaQuery.of(context).size;
     final badgeData = Provider.of<BadgeCounter>(context);
     return Container(
       child: Column(
@@ -82,23 +86,20 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 Row(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 20, 0, 10),
+                      padding: const EdgeInsets.fromLTRB(15, 20, 0, 10),
                       child: Text(
-                        "Notification",
+                        "Thông báo bài mới",
                         style: TextStyle(
-                          fontSize: 25.0,
+                          fontSize: 23.0,
                           color: Colors.white70,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                    SizedBox(
-                      width: mq.width * 0.3,
-                    ),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 10, 8, 0),
+                      padding: const EdgeInsets.fromLTRB(15, 10, 8, 0),
                       child: ElevatedButton(
-                        child: Text('Clear all'),
+                        child: Text('Xóa mọi thông báo'),
                         style: ElevatedButton.styleFrom(
                           primary: Colors.redAccent,
                         ),
@@ -121,31 +122,52 @@ class _NotificationScreenState extends State<NotificationScreen> {
           ),
           Expanded(
             flex: 7,
-            child: ListView.builder(
-              itemCount: notificationList.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(left: 5, top: 2, right: 5),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ArticleScreenById(
-                            id: currentIndexId,
-                          ),
-                        ),
-                      );
-                      badgeData.initalizeCount();
-                      removeNotificationbyIndex(index);
-                      addOpens(currentIndexId);
-                    },
-                    child: NotificationWidget(
-                      item: notificationList[index],
-                    ),
-                  ),
-                );
+            child: SmartRefresher(
+              enablePullDown: true,
+              header: WaterDropHeader(),
+              footer: ClassicFooter(),
+              controller: _refreshController,
+              onRefresh: () async {
+                setState(() {
+                  getNotifications();
+                  badgeData.initalizeCount();
+                  setBadgeInitialize();
+                });
+                await Future.delayed(Duration(milliseconds: 1000));
+                _refreshController.refreshCompleted();
               },
+              onLoading: () async {
+                await Future.delayed(Duration(milliseconds: 1000));
+                // if failed,use loadFailed(),if no data return,use LoadNodata()
+                if (mounted) setState(() async {});
+                _refreshController.loadComplete();
+              },
+              child: ListView.builder(
+                itemCount: notificationList.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 5, top: 2, right: 5),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ArticleScreenById(
+                              id: currentIndexId,
+                            ),
+                          ),
+                        );
+                        badgeData.initalizeCount();
+                        removeNotificationbyIndex(index);
+                        addArticleOpens(currentIndexId);
+                      },
+                      child: NotificationWidget(
+                        item: notificationList[index],
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         ],

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:provider/provider.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../provider/badge_provider.dart';
@@ -24,6 +25,9 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
   final LocalStorage storage = new LocalStorage('favorite_articles');
   Future<List<Article>> _getFavoriteArticles;
   String favorString = '';
+  RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
+
   @override
   void initState() {
     initStorage();
@@ -46,8 +50,8 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
     });
   }
 
-  void addOpens(String id) async {
-    var result = await _service.addOpens(id);
+  void addArticleOpens(String id) async {
+    var result = await _service.addArticleOpens(id);
     if (result == true) {
       print("Aritlce Opens Counts ++");
     } else {
@@ -68,7 +72,7 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 20, 0, 10),
           child: Text(
-            "Favorite",
+            "Thích",
             style: TextStyle(
               fontSize: 25.0,
               color: Colors.white70,
@@ -85,30 +89,51 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
         ),
         Expanded(
           child: Container(
-            child: ListView.builder(
-              itemCount: data.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(left: 5, top: 2, right: 5),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ArticleScreen(
-                            items: data,
-                            itemIndex: index,
-                          ),
-                        ),
-                      );
-                      addOpens(data[index].id);
-                    },
-                    child: ArticleItemWidget(
-                      item: data[index],
-                    ),
-                  ),
-                );
+            child: SmartRefresher(
+              enablePullDown: true,
+              header: WaterDropHeader(),
+              footer: ClassicFooter(),
+              controller: _refreshController,
+              onRefresh: () async {
+                setState(() {
+                  _getFavoriteArticles =
+                      getFavoriteArticles(context, favorString);
+                });
+                print(data);
+                await Future.delayed(Duration(milliseconds: 1000));
+                _refreshController.refreshCompleted();
               },
+              onLoading: () async {
+                await Future.delayed(Duration(milliseconds: 1000));
+                // if failed,use loadFailed(),if no data return,use LoadNodata()
+                if (mounted) setState(() async {});
+                _refreshController.loadComplete();
+              },
+              child: ListView.builder(
+                itemCount: data.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 5, top: 2, right: 5),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ArticleScreen(
+                              items: data,
+                              itemIndex: index,
+                            ),
+                          ),
+                        );
+                        addArticleOpens(data[index].id);
+                      },
+                      child: ArticleItemWidget(
+                        item: data[index],
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         ),
@@ -136,7 +161,7 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
                   case ConnectionState.active:
                   case ConnectionState.waiting:
                     return Container(
-                      color: Colors.white,
+                      color: articleBackground,
                       child: Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -153,21 +178,7 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
                   case ConnectionState.done:
                   default:
                     if (snapshot.hasError || snapshot.data == null) {
-                      return Container(
-                        color: Colors.white,
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                height: mq.height * 0.1,
-                              ),
-                              kLoadingWidget(context),
-                            ],
-                          ),
-                        ),
-                      );
+                      return Container();
                     } else {
                       return body(snapshot.data);
                     }

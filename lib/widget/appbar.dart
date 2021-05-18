@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:icon_badge/icon_badge.dart';
 import 'package:provider/provider.dart';
+import 'package:semvac_covid_viet/config/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../screens/home_screen.dart';
@@ -9,15 +10,22 @@ import '../screens/aboutus_screen.dart';
 import '../screens/favorite_screen.dart';
 import '../screens/notification_screen.dart';
 import '../provider/badge_provider.dart';
+import '../provider/app_name_provider.dart';
 
 void setBadgeInitialize() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.remove('badgeCounts');
 }
 
+void getAppName() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  appName = prefs.get('appName');
+}
+
 Widget appBar(context) {
   final badgeData = Provider.of<BadgeCounter>(context);
   int badgeCounts = Provider.of<BadgeCounter>(context).count;
+  String _appName = Provider.of<AppNameProvider>(context).getName;
 
   return PreferredSize(
     preferredSize: const Size(double.infinity, kToolbarHeight),
@@ -61,7 +69,7 @@ Widget appBar(context) {
             },
             child: Center(
               child: Text(
-                "SEMVAC",
+                _appName,
                 style: TextStyle(
                   fontSize: 22,
                   color: appLogoColor,

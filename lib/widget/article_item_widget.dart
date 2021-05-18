@@ -22,12 +22,14 @@ class _ArticleItemWidgetState extends State<ArticleItemWidget> {
   List<dynamic> favorIds = [];
   final LocalStorage storage = new LocalStorage('favorite_articles');
   String text = '';
-  String subject = 'Chia sẻ bài này từ app của SEMVAC: ...';
+  String subject = 'Thông tin từ SEMVAC: ';
   List<String> imagePaths = [];
+  String date, time;
 
   @override
   void initState() {
     initStorage();
+    seperateDate();
     super.initState();
   }
 
@@ -71,13 +73,13 @@ class _ArticleItemWidgetState extends State<ArticleItemWidget> {
         flush = Flushbar<bool>(
             message: "SEMVAC cám ơn bạn thích thông tin này!",
             margin: EdgeInsets.all(8),
-            duration: Duration(seconds: 1),
+            duration: Duration(seconds: 3),
             mainButton: TextButton(
               onPressed: () {
                 flush.dismiss(true); // result = true
               },
               child: Text(
-                "Close",
+                "đóng",
                 style: TextStyle(
                   fontSize: 20,
                   fontFamily: 'Noto_Sans_JP',
@@ -114,17 +116,25 @@ class _ArticleItemWidgetState extends State<ArticleItemWidget> {
     }
   }
 
-  _addTextImagePaths() {
+  _addSharingText() {
     setState(() {
       for (var i = 0; i < widget.item.images.length; i++) {
         var path = imageBaseUrl + widget.item.images[i];
         // imagePaths.add(path);
-        text = widget.item.articleTitle +
+        var body = widget.item.articleDescription
+            .replaceRange(100, widget.item.articleDescription.length, "...");
+        text = body +
             "\n" +
             "\n" +
-            widget.item.articleDescription +
+            "Hình ảnh bài viết:" +
             "\n" +
-            path;
+            path +
+            "\n" +
+            "\n" +
+            "Android: play.google.com/store/apps/details?id=com.semvac.semvac_covid_viet&hl=en" +
+            "\n" +
+            "iOS: apps.apple.com/vnm/app/semvac/id937067093";
+
         print(text);
       }
     });
@@ -133,8 +143,14 @@ class _ArticleItemWidgetState extends State<ArticleItemWidget> {
   _onShare(BuildContext context) async {
     final RenderBox box = context.findRenderObject() as RenderBox;
     await Share.share(text,
-        subject: subject,
+        subject: subject + widget.item.articleTitle,
         sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
+  }
+
+  void seperateDate() {
+    var result = widget.item.date.split(" ");
+    date = result[0];
+    time = result[1];
   }
 
   @override
@@ -177,28 +193,48 @@ class _ArticleItemWidgetState extends State<ArticleItemWidget> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            margin: const EdgeInsets.all(8.0),
-            width: mq.width * 0.3,
-            height: mq.width * 0.3,
-            decoration: BoxDecoration(
-              border: Border.all(
-                  // color: cardBorderColor,
+          Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.all(8.0),
+                width: mq.width * 0.3,
+                height: mq.width * 0.3,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                      // color: cardBorderColor,
+                      ),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(8),
                   ),
-              borderRadius: BorderRadius.all(
-                Radius.circular(8),
-              ),
-            ),
-            child: Container(
-              // margin: const EdgeInsets.all(8.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: Image.network(
-                  imageBaseUrl + widget.item.images[0],
-                  fit: BoxFit.cover,
+                ),
+                child: Container(
+                  // margin: const EdgeInsets.all(8.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: Image.network(
+                      imageBaseUrl + widget.item.images[0],
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
               ),
-            ),
+              Text(
+                date,
+                style: TextStyle(
+                  fontSize: 16.0,
+                  color: Colors.white70,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                time,
+                style: TextStyle(
+                  fontSize: 16.0,
+                  color: Colors.white70,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
           Container(
             width: mq.width * 0.6,
@@ -258,7 +294,7 @@ class _ArticleItemWidgetState extends State<ArticleItemWidget> {
                       ),
                       GestureDetector(
                         onTap: () {
-                          _addTextImagePaths();
+                          _addSharingText();
                           _onShare(context);
                           addShares(widget.item.id);
                         },
