@@ -40,6 +40,7 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
       favorString = '';
     } else {
       var favorIds = storage.getItem("favorIds");
+      favorIds.sort((a, b) => int.parse(b).compareTo(int.parse(a)));
       for (var i = 0; i < favorIds.length; i++) {
         favorString += favorIds[i].toString() + ",";
       }

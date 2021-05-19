@@ -133,7 +133,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
   _addSharingText() {
     setState(() {
       for (var i = 0; i < widget.items[widget.itemIndex].images.length; i++) {
-        var path = imageBaseUrl + widget.items[widget.itemIndex].images[i];
+        // var path = imageBaseUrl + widget.items[widget.itemIndex].images[i];
         // imagePaths.add(path);
         var body = widget.items[widget.itemIndex].articleDescription
             .replaceRange(
@@ -143,14 +143,11 @@ class _ArticleScreenState extends State<ArticleScreen> {
         text = body +
             "\n" +
             "\n" +
-            "Hình ảnh bài viết:" +
             "\n" +
-            path +
+            "ANDROID: play.google.com/store/apps/details?id=com.semvac.semvac&hl=en" +
             "\n" +
             "\n" +
-            "Android: play.google.com/store/apps/details?id=com.semvac.semvac_covid_viet&hl=en" +
-            "\n" +
-            "iOS: apps.apple.com/vnm/app/semvac/id937067093";
+            "IPHONE: apps.apple.com/vnm/app/semvac/id937067093";
 
         print(text);
       }

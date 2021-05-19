@@ -130,21 +130,18 @@ class _ArticleScreenByIdState extends State<ArticleScreenById> {
   _addSharingText() {
     setState(() {
       for (var i = 0; i < item.images.length; i++) {
-        var path = imageBaseUrl + item.images[i];
+        // var path = imageBaseUrl + item.images[i];
         // imagePaths.add(path);
         var body = item.articleDescription
             .replaceRange(100, item.articleDescription.length, "...");
         text = body +
             "\n" +
             "\n" +
-            "Hình ảnh bài viết:" +
             "\n" +
-            path +
+            "ANDROID: play.google.com/store/apps/details?id=com.semvac.semvac&hl=en" +
             "\n" +
             "\n" +
-            "Android: play.google.com/store/apps/details?id=com.semvac.semvac_covid_viet&hl=en" +
-            "\n" +
-            "iOS: apps.apple.com/vnm/app/semvac/id937067093";
+            "IPHONE: apps.apple.com/vnm/app/semvac/id937067093";
 
         print(text);
       }

@@ -119,21 +119,18 @@ class _ArticleItemWidgetState extends State<ArticleItemWidget> {
   _addSharingText() {
     setState(() {
       for (var i = 0; i < widget.item.images.length; i++) {
-        var path = imageBaseUrl + widget.item.images[i];
+        // var path = imageBaseUrl + widget.item.images[i];
         // imagePaths.add(path);
         var body = widget.item.articleDescription
             .replaceRange(100, widget.item.articleDescription.length, "...");
         text = body +
             "\n" +
             "\n" +
-            "Hình ảnh bài viết:" +
             "\n" +
-            path +
+            "ANDROID: play.google.com/store/apps/details?id=com.semvac.semvac&hl=en" +
             "\n" +
             "\n" +
-            "Android: play.google.com/store/apps/details?id=com.semvac.semvac_covid_viet&hl=en" +
-            "\n" +
-            "iOS: apps.apple.com/vnm/app/semvac/id937067093";
+            "IPHONE: apps.apple.com/vnm/app/semvac/id937067093";
 
         print(text);
       }
@@ -218,22 +215,22 @@ class _ArticleItemWidgetState extends State<ArticleItemWidget> {
                   ),
                 ),
               ),
-              Text(
-                date,
-                style: TextStyle(
-                  fontSize: 16.0,
-                  color: Colors.white70,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                time,
-                style: TextStyle(
-                  fontSize: 16.0,
-                  color: Colors.white70,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              // Text(
+              //   date,
+              //   style: TextStyle(
+              //     fontSize: 16.0,
+              //     color: Colors.white70,
+              //     fontWeight: FontWeight.bold,
+              //   ),
+              // ),
+              // Text(
+              //   time,
+              //   style: TextStyle(
+              //     fontSize: 16.0,
+              //     color: Colors.white70,
+              //     fontWeight: FontWeight.bold,
+              //   ),
+              // ),
             ],
           ),
           Container(
