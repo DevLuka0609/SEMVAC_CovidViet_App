@@ -25,7 +25,7 @@ class _ArticleScreenByIdState extends State<ArticleScreenById> {
   Future<Article> _getArticleById;
   Article item;
   String text = '';
-  String subject = 'Chia sẻ bài này từ app của SEMVAC: ...';
+  String subject = 'Thông tin từ SEMVAC: ';
   List<String> imagePaths = [];
   final LocalStorage storage = new LocalStorage('favorite_articles');
   bool isFavorite = false;
@@ -84,13 +84,13 @@ class _ArticleScreenByIdState extends State<ArticleScreenById> {
         flush = Flushbar<bool>(
             message: "SEMVAC cám ơn bạn thích thông tin này!",
             margin: EdgeInsets.all(8),
-            duration: Duration(seconds: 2),
+            duration: Duration(seconds: 3),
             mainButton: TextButton(
               onPressed: () {
                 flush.dismiss(true); // result = true
               },
               child: Text(
-                "Close",
+                "đóng",
                 style: TextStyle(
                   fontSize: 18,
                   fontFamily: 'Noto_Sans_JP',
@@ -127,17 +127,22 @@ class _ArticleScreenByIdState extends State<ArticleScreenById> {
     }
   }
 
-  _addTextImagePaths() {
+  _addSharingText() {
     setState(() {
       for (var i = 0; i < item.images.length; i++) {
-        var path = imageBaseUrl + item.images[i];
+        // var path = imageBaseUrl + item.images[i];
         // imagePaths.add(path);
-        text = item.articleTitle +
+        var body = item.articleDescription
+            .replaceRange(100, item.articleDescription.length, "...");
+        text = body +
             "\n" +
             "\n" +
-            item.articleDescription +
             "\n" +
-            path;
+            "ANDROID: play.google.com/store/apps/details?id=com.semvac.semvac&hl=en" +
+            "\n" +
+            "\n" +
+            "IPHONE: apps.apple.com/vnm/app/semvac/id937067093";
+
         print(text);
       }
     });
@@ -146,7 +151,7 @@ class _ArticleScreenByIdState extends State<ArticleScreenById> {
   _onShare(BuildContext context) async {
     final RenderBox box = context.findRenderObject() as RenderBox;
     await Share.share(text,
-        subject: subject,
+        subject: subject + item.articleTitle,
         sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
   }
 
@@ -295,7 +300,7 @@ class _ArticleScreenByIdState extends State<ArticleScreenById> {
               ),
               GestureDetector(
                 onTap: () {
-                  _addTextImagePaths();
+                  _addSharingText();
                   _onShare(context);
                   addShares(widget.id);
                 },
@@ -330,7 +335,7 @@ class _ArticleScreenByIdState extends State<ArticleScreenById> {
                   case ConnectionState.active:
                   case ConnectionState.waiting:
                     return Container(
-                      color: Colors.white,
+                      color: articleBackground,
                       child: Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -347,21 +352,7 @@ class _ArticleScreenByIdState extends State<ArticleScreenById> {
                   case ConnectionState.done:
                   default:
                     if (snapshot.hasError || snapshot.data == null) {
-                      return Container(
-                        color: Colors.white,
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                height: mq.height * 0.1,
-                              ),
-                              kLoadingWidget(context),
-                            ],
-                          ),
-                        ),
-                      );
+                      return Container();
                     } else {
                       return body(snapshot.data);
                     }

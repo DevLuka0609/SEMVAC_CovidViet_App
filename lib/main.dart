@@ -3,15 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:provider/provider.dart';
+import 'package:semvac_covid_viet/service/api.dart';
 import './provider/badge_provider.dart';
 import './provider/push_notification.dart';
 import 'screens/home_screen.dart';
 import 'service/pushnotification.dart';
+import './provider/app_name_provider.dart';
 
 void main() async {
+  Service _service = new Service();
   WidgetsFlutterBinding.ensureInitialized();
+
   await Future.wait([
     Firebase.initializeApp(),
+    _service.addAppOpens(),
   ]);
   PushNotificationService service = new PushNotificationService();
   service.requestNotifications();
@@ -31,6 +36,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => PushNotification(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => AppNameProvider(),
         )
       ],
       child: MaterialApp(

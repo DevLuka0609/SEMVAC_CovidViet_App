@@ -1,10 +1,11 @@
 import 'dart:convert' show json;
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../provider/push_notification.dart';
 import '../provider/badge_provider.dart';
@@ -16,6 +17,8 @@ import '../widget/loading.dart';
 import '../widget/appbar.dart';
 import 'article_screen.dart';
 import './article_screen_by_id.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = new GlobalKey<NavigatorState>();
 
 Future<void> onBackgroundMessageReceived(RemoteMessage message) async {
   if (message.notification != null) {
@@ -40,6 +43,8 @@ Future<void> onBackgroundMessageReceived(RemoteMessage message) async {
     print(json.encode(nfList));
     await prefs.setInt('badgeCounts', prevBadgeCounts);
     await prefs.setString('nfList', json.encode(nfList));
+    await prefs.setBool("isBackNoti", true);
+    await prefs.setString("backNotiData", json.encode(data));
   }
 }
 
@@ -52,6 +57,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Service _service = new Service();
   Future<List<Article>> _getArticles;
   bool _isInForeground = true;
+  RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
 
   @override
   void initState() {
@@ -59,10 +66,32 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     _getArticles = getArticles(context);
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    isBackground();
   }
 
-  void addOpens(String id) async {
-    var result = await _service.addOpens(id);
+  void isBackground() async {
+    var prevData;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var result = prefs.get("isBackNoti");
+    String backData = prefs.getString('backNotiData');
+    if (backData != null) prevData = json.decode(backData);
+    print(backData);
+    if (result == true || result != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ArticleScreenById(
+            id: prevData["article_id"],
+          ),
+        ),
+      );
+      prefs.remove("isBackNoti");
+      prefs.remove("backNotiData");
+    } else {}
+  }
+
+  void addArticleOpens(String id) async {
+    var result = await _service.addArticleOpens(id);
     if (result == true) {
       print("Aritlce Opens Counts ++");
     } else {
@@ -128,6 +157,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     });
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
       if (message.notification != null) {
+        var result = _service.addNotificationOpens();
+        print("=============");
+        print(result);
         var sentTime = message.sentTime;
         var data = message.data;
         SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -155,13 +187,34 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             ),
           ),
         );
+        prefs.remove("isBackNoti");
+        prefs.remove("backNotiData");
+        prefs.reload();
       }
     });
     FirebaseMessaging.onBackgroundMessage(onBackgroundMessageReceived);
   }
 
   Widget body(List<Article> data) {
-    return Container(
+    return SmartRefresher(
+      enablePullDown: true,
+      header: WaterDropHeader(),
+      footer: ClassicFooter(),
+      controller: _refreshController,
+      onRefresh: () async {
+        setState(() {
+          _getArticles = getArticles(context);
+        });
+        print(data);
+        await Future.delayed(Duration(milliseconds: 1000));
+        _refreshController.refreshCompleted();
+      },
+      onLoading: () async {
+        await Future.delayed(Duration(milliseconds: 1000));
+        // if failed,use loadFailed(),if no data return,use LoadNodata()
+        if (mounted) setState(() async {});
+        _refreshController.loadComplete();
+      },
       child: ListView.builder(
         itemCount: data.length,
         itemBuilder: (context, index) {
@@ -178,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     ),
                   ),
                 );
-                addOpens(data[index].id);
+                addArticleOpens(data[index].id);
               },
               child: ArticleItemWidget(
                 item: data[index],
@@ -210,7 +263,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   case ConnectionState.active:
                   case ConnectionState.waiting:
                     return Container(
-                      color: Colors.white,
+                      color: articleBackground,
                       child: Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -227,21 +280,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   case ConnectionState.done:
                   default:
                     if (snapshot.hasError || snapshot.data == null) {
-                      return Container(
-                        color: Colors.white,
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                height: mq.height * 0.1,
-                              ),
-                              kLoadingWidget(context),
-                            ],
-                          ),
-                        ),
-                      );
+                      return Container();
                     } else {
                       return body(snapshot.data);
                     }

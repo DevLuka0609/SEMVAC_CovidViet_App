@@ -30,7 +30,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
   Service _service = new Service();
   final LocalStorage storage = new LocalStorage('favorite_articles');
   String text = '';
-  String subject = 'Chia sẻ bài này từ app của SEMVAC: ...';
+  String subject = 'Thông tin từ SEMVAC: ';
   List<String> imagePaths = [];
 
   @override
@@ -87,13 +87,13 @@ class _ArticleScreenState extends State<ArticleScreen> {
         flush = Flushbar<bool>(
             message: "SEMVAC cám ơn bạn thích thông tin này!",
             margin: EdgeInsets.all(8),
-            duration: Duration(seconds: 2),
+            duration: Duration(seconds: 3),
             mainButton: TextButton(
               onPressed: () {
                 flush.dismiss(true); // result = true
               },
               child: Text(
-                "Close",
+                "đóng",
                 style: TextStyle(
                   fontSize: 18,
                   fontFamily: 'Noto_Sans_JP',
@@ -130,17 +130,25 @@ class _ArticleScreenState extends State<ArticleScreen> {
     }
   }
 
-  _addTextImagePaths() {
+  _addSharingText() {
     setState(() {
-      for (var i = 0; i < widget.items[currentIndex].images.length; i++) {
-        var path = imageBaseUrl + widget.items[currentIndex].images[i];
+      for (var i = 0; i < widget.items[widget.itemIndex].images.length; i++) {
+        // var path = imageBaseUrl + widget.items[widget.itemIndex].images[i];
         // imagePaths.add(path);
-        text = widget.items[currentIndex].articleTitle +
+        var body = widget.items[widget.itemIndex].articleDescription
+            .replaceRange(
+                100,
+                widget.items[widget.itemIndex].articleDescription.length,
+                "...");
+        text = body +
             "\n" +
             "\n" +
-            widget.items[currentIndex].articleDescription +
             "\n" +
-            path;
+            "ANDROID: play.google.com/store/apps/details?id=com.semvac.semvac&hl=en" +
+            "\n" +
+            "\n" +
+            "IPHONE: apps.apple.com/vnm/app/semvac/id937067093";
+
         print(text);
       }
     });
@@ -149,7 +157,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
   _onShare(BuildContext context) async {
     final RenderBox box = context.findRenderObject() as RenderBox;
     await Share.share(text,
-        subject: subject,
+        subject: subject + widget.items[widget.itemIndex].articleDescription,
         sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
   }
 
@@ -331,7 +339,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      _addTextImagePaths();
+                      _addSharingText();
                       _onShare(context);
                       addShares(widget.items[widget.itemIndex].id);
                     },
