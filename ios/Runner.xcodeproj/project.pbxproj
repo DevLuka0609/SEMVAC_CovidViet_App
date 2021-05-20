@@ -13,9 +13,9 @@
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+		A13E3D44265673480002DAEA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A13E3D43265673480002DAEA /* GoogleService-Info.plist */; };
 		A185E597265274F500E51E70 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A185E596265274F500E51E70 /* NotificationService.swift */; };
 		A185E59B265274F500E51E70 /* ImageNotification.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A185E594265274F500E51E70 /* ImageNotification.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		A1913576264F057B003674A5 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A1913575264F057B003674A5 /* GoogleService-Info.plist */; };
 		BC13E81847DFEEB46DEC5B4C /* Pods_ImageNotification.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1041B38B4126DAFB08F8FDB1 /* Pods_ImageNotification.framework */; };
 		E3E93204724DC69BF3E6DE76 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C243D42AFCF2DEA3804DF1F1 /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
@@ -76,10 +76,10 @@
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9B20D9E3B008E119A7450056 /* Pods-ImageNotification.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ImageNotification.release.xcconfig"; path = "Target Support Files/Pods-ImageNotification/Pods-ImageNotification.release.xcconfig"; sourceTree = "<group>"; };
 		A126C82A2652095E00C55425 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
+		A13E3D43265673480002DAEA /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A185E594265274F500E51E70 /* ImageNotification.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ImageNotification.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		A185E596265274F500E51E70 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		A185E598265274F500E51E70 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A1913575264F057B003674A5 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A2B772F4FE397D53DCC6254F /* Pods-semvac notification.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-semvac notification.profile.xcconfig"; path = "Target Support Files/Pods-semvac notification/Pods-semvac notification.profile.xcconfig"; sourceTree = "<group>"; };
 		C243D42AFCF2DEA3804DF1F1 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0063548BA9CABC22E165096 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
@@ -152,8 +152,8 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
+				A13E3D43265673480002DAEA /* GoogleService-Info.plist */,
 				A126C82A2652095E00C55425 /* Runner.entitlements */,
-				A1913575264F057B003674A5 /* GoogleService-Info.plist */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
@@ -281,7 +281,7 @@
 			files = (
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
-				A1913576264F057B003674A5 /* GoogleService-Info.plist in Resources */,
+				A13E3D44265673480002DAEA /* GoogleService-Info.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
 			);
@@ -510,7 +510,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.semvac.semvacCovidViet;
+				PRODUCT_BUNDLE_IDENTIFIER = com.semvac.semvacViet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -649,7 +649,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.semvac.semvacCovidViet;
+				PRODUCT_BUNDLE_IDENTIFIER = com.semvac.semvacViet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -682,7 +682,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.semvac.semvacCovidViet;
+				PRODUCT_BUNDLE_IDENTIFIER = com.semvac.semvacViet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -712,7 +712,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.semvac.semvacCovidViet.ImageNotification;
+				PRODUCT_BUNDLE_IDENTIFIER = com.semvac.semvacViet.ImageNotification;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -743,7 +743,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.semvac.semvacCovidViet.ImageNotification;
+				PRODUCT_BUNDLE_IDENTIFIER = com.semvac.semvacViet.ImageNotification;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -772,7 +772,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.semvac.semvacCovidViet.ImageNotification;
+				PRODUCT_BUNDLE_IDENTIFIER = com.semvac.semvacViet.ImageNotification;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;

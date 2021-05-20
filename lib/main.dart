@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:provider/provider.dart';
-import 'package:semvac_covid_viet/service/api.dart';
+import 'package:overlay_support/overlay_support.dart';
+import './service/api.dart';
 import './provider/badge_provider.dart';
 import './provider/push_notification.dart';
 import 'screens/home_screen.dart';
@@ -29,26 +30,28 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (context) => BadgeCounter(),
+    return OverlaySupport.global(
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (context) => BadgeCounter(),
+          ),
+          ChangeNotifierProvider(
+            create: (context) => PushNotification(),
+          ),
+          ChangeNotifierProvider(
+            create: (context) => AppNameProvider(),
+          )
+        ],
+        child: MaterialApp(
+          title: 'SEMVAC Covid Viet App',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+            visualDensity: VisualDensity.adaptivePlatformDensity,
+          ),
+          home: HomeScreen(),
         ),
-        ChangeNotifierProvider(
-          create: (context) => PushNotification(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => AppNameProvider(),
-        )
-      ],
-      child: MaterialApp(
-        title: 'SEMVAC Covid Viet App',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-        ),
-        home: HomeScreen(),
       ),
     );
   }

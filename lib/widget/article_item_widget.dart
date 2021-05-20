@@ -235,7 +235,7 @@ class _ArticleItemWidgetState extends State<ArticleItemWidget> {
           ),
           Container(
             width: mq.width * 0.6,
-            height: mq.height * 0.24,
+            height: mq.height * 0.25,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,

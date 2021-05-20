@@ -90,14 +90,14 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       child: Text(
                         "Thông báo bài mới",
                         style: TextStyle(
-                          fontSize: 23.0,
+                          fontSize: 21.0,
                           color: Colors.white70,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(15, 10, 8, 0),
+                      padding: const EdgeInsets.fromLTRB(10, 10, 8, 0),
                       child: ElevatedButton(
                         child: Text('Xóa mọi thông báo'),
                         style: ElevatedButton.styleFrom(
